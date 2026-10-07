@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dropzone — Share files simply</title>
+  <style>
+    :root {
+      --ink: #18302c;
+      --muted: #70807d;
+      --cream: #f7f8f3;
+      --white: #ffffff;
+      --line: #e5eae3;
+      --mint: #d8f4e8;
+      --green: #2f7c63;
+      --green-dark: #25634f;
+      --orange: #f4a261;
+      --shadow: 0 24px 60px rgba(31, 67, 57, .11);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 88% 8%, #eaf7ef 0, transparent 28%),
+        var(--cream);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+
+    .shell {
+      width: min(1120px, calc(100% - 48px));
+      margin: 0 auto;
+    }
+
+    nav {
+      height: 88px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      font-weight: 800;
+      letter-spacing: -.04em;
+      font-size: 21px;
+    }
+
+    .brand-mark {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      border-radius: 11px;
+      background: var(--green);
+      box-shadow: 0 7px 14px rgba(47, 124, 99, .24);
+    }
+
+    .brand-mark svg { width: 20px; }
+
+    .nav-note {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #66bf86;
+      box-shadow: 0 0 0 4px #e0f3e6;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: .92fr 1.08fr;
+      gap: 70px;
+      align-items: center;
+      min-height: calc(100vh - 88px);
+      padding: 30px 0 72px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 11px;
+      border: 1px solid #cce7d8;
+      border-radius: 99px;
+      color: var(--green-dark);
+      background: #eefaf3;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      max-width: 470px;
+      margin: 21px 0 18px;
+      font-size: clamp(42px, 5vw, 67px);
+      line-height: .99;
+      letter-spacing: -.07em;
+    }
+
+    h1 span { color: var(--green); }
+
+    .intro {
+      max-width: 405px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    .trust-row {
+      display: flex;
+      align-items: center;
+      gap: 17px;
+      margin-top: 36px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .avatar-stack { display: flex; }
+    .avatar {
+      display: grid;
+      place-items: center;
+      width: 27px;
+      height: 27px;
+      margin-right: -7px;
+      border: 2px solid var(--cream);
+      border-radius: 50%;
+      color: #fff;
+      font-size: 9px;
+      font-weight: 800;
+    }
+    .avatar:nth-child(1) { background: #ef9e7c; }
+    .avatar:nth-child(2) { background: #7aa8a0; }
+    .avatar:nth-child(3) { background: #a789c4; }
+
+    .card {
+      padding: 27px;
+      border: 1px solid rgba(224, 232, 225, .85);
+      border-radius: 24px;
+      background: rgba(255, 255, 255, .86);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 19px;
+    }
+
+    .card-title { margin: 0 0 5px; font-size: 20px; letter-spacing: -.04em; }
+    .card-subtitle { margin: 0; color: var(--muted); font-size: 12px; }
+    .lock { color: var(--green); }
+
+    .drop-zone {
+      min-height: 240px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 26px;
+      border: 1.5px dashed #b8d8c7;
+      border-radius: 17px;
+      background: #f4fbf7;
+      text-align: center;
+      transition: .2s ease;
+    }
+    .drop-zone.is-dragging, .drop-zone.has-file { border-color: var(--green); background: var(--mint); }
+
+    .upload-icon {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 15px;
+      color: var(--green);
+      border-radius: 15px;
+      background: #dff3e7;
+    }
+    .upload-icon svg { width: 23px; }
+    .drop-title { margin: 0 0 7px; font-size: 14px; font-weight: 750; }
+    .drop-caption { margin: 0 0 17px; color: var(--muted); font-size: 12px; }
+    .browse-btn, .share-btn {
+      border: 0;
+      border-radius: 10px;
+      font-weight: 750;
+      transition: .2s ease;
+    }
+    .browse-btn {
+      padding: 10px 17px;
+      color: var(--green-dark);
+      background: #fff;
+      box-shadow: 0 4px 10px rgba(41, 98, 76, .07);
+    }
+    .browse-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 13px rgba(41, 98, 76, .12); }
+    input[type="file"] { display: none; }
+
+    .file-preview {
+      display: none;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 11px 13px;
+      border-radius: 12px;
+      background: rgba(255,255,255,.7);
+      text-align: left;
+    }
+    .file-preview.visible { display: flex; }
+    .file-type {
+      width: 35px; height: 35px; display: grid; place-items: center;
+      border-radius: 9px; color: #fff; background: var(--orange); font-size: 10px; font-weight: 800;
+    }
+    .file-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; font-weight: 700; }
+    .file-size { margin-top: 3px; color: var(--muted); font-size: 11px; }
+    .remove-file { margin-left: auto; border: 0; background: transparent; color: var(--muted); font-size: 19px; }
+
+    .settings {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 13px;
+      margin-top: 17px;
+    }
+    .field label {
+      display: block;
+      margin: 0 0 7px 2px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+    }
+    select {
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      outline: 0;
+      color: var(--ink);
+      background: #fff;
+    }
+    select:focus { border-color: var(--green); }
+
+    .share-btn {
+      width: 100%;
+      margin-top: 18px;
+      padding: 13px;
+      color: #fff;
+      background: var(--green);
+      box-shadow: 0 9px 17px rgba(47, 124, 99, .2);
+    }
+    .share-btn:hover { background: var(--green-dark); transform: translateY(-1px); }
+    .share-btn:disabled { cursor: not-allowed; opacity: .5; transform: none; box-shadow: none; }
+    .share-btn.loading { cursor: wait; }
+
+    .result {
+      display: none;
+      gap: 8px;
+      align-items: center;
+      margin-top: 14px;
+      padding: 11px 12px;
+      border: 1px solid #cce7d8;
+      border-radius: 10px;
+      color: var(--green-dark);
+      background: #eefaf3;
+      font-size: 12px;
+    }
+    .result.visible { display: flex; }
+    .result-link { overflow: hidden; flex: 1; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; }
+    .copy-btn { padding: 5px 7px; border: 0; border-radius: 6px; color: var(--green-dark); background: #fff; font-size: 11px; font-weight: 750; }
+
+    @media (max-width: 760px) {
+      .shell { width: min(100% - 32px, 540px); }
+      nav { height: 75px; }
+      .nav-note { display: none; }
+      main { grid-template-columns: 1fr; gap: 38px; padding-top: 35px; }
+      h1 { font-size: 52px; }
+      .trust-row { margin-top: 25px; }
+      .card { padding: 19px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <nav>
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5"/><path d="M5 13v4.5A2.5 2.5 0 0 0 7.5 20h9a2.5 2.5 0 0 0 2.5-2.5V13"/>
+          </svg>
+        </div>
+        dropzone
+      </div>
+      <div class="nav-note"><i class="status-dot"></i> Secure, private sharing</div>
+    </nav>
+
+    <main>
+      <section>
+        <div class="eyebrow"><span>✦</span> No account needed</div>
+        <h1>Move files.<br /><span>Not limits.</span></h1>
+        <p class="intro">Share photos, videos, and documents with anyone, anywhere. Just drop a file and send the link.</p>
+        <div class="trust-row">
+          <div class="avatar-stack" aria-hidden="true"><div class="avatar">A</div><div class="avatar">M</div><div class="avatar">J</div></div>
+          <span>Loved by 12,000+ people sharing simply</span>
+        </div>
+      </section>
+
+      <section class="card" aria-label="File sharing form">
+        <div class="card-top">
+          <div>
+            <h2 class="card-title">Create a share link</h2>
+            <p class="card-subtitle">Your file is encrypted while it travels.</p>
+          </div>
+          <div class="lock" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+          </div>
+        </div>
+
+        <div class="drop-zone" id="dropZone">
+          <div class="upload-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5"/><path d="M5 13v4.5A2.5 2.5 0 0 0 7.5 20h9a2.5 2.5 0 0 0 2.5-2.5V13"/></svg>
+          </div>
+          <p class="drop-title" id="dropTitle">Drop your file here</p>
+          <p class="drop-caption" id="dropCaption">Any file type · Up to 2 GB</p>
+          <button class="browse-btn" id="browseBtn" type="button">Browse files</button>
+          <input id="fileInput" type="file" />
+          <div class="file-preview" id="filePreview">
+            <div class="file-type" id="fileType">FILE</div>
+            <div><div class="file-name" id="fileName"></div><div class="file-size" id="fileSize"></div></div>
+            <button class="remove-file" id="removeFile" type="button" aria-label="Remove file">&times;</button>
+          </div>
+        </div>
+
+        <div class="settings">
+          <div class="field">
+            <label for="expiry">LINK EXPIRES IN</label>
+            <select id="expiry"><option>7 days</option><option>24 hours</option><option>30 days</option><option>Never</option></select>
+          </div>
+          <div class="field">
+            <label for="downloads">DOWNLOADS</label>
+            <select id="downloads"><option>Unlimited</option><option>1 download</option><option>5 downloads</option><option>20 downloads</option></select>
+          </div>
+        </div>
+        <button class="share-btn" id="shareBtn" type="button" disabled>Generate share link</button>
+        <div class="result" id="result" role="status"><span>✓</span><span class="result-link" id="resultLink"></span><button class="copy-btn" id="copyBtn" type="button">Copy</button></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const dropZone = document.getElementById("dropZone");
+    const fileInput = document.getElementById("fileInput");
+    const browseBtn = document.getElementById("browseBtn");
+    const shareBtn = document.getElementById("shareBtn");
+    const filePreview = document.getElementById("filePreview");
+    const fileName = document.getElementById("fileName");
+    const fileSize = document.getElementById("fileSize");
+    const fileType = document.getElementById("fileType");
+    const result = document.getElementById("result");
+    const resultLink = document.getElementById("resultLink");
+    let selectedFile = null;
+
+    function formatSize(bytes) {
+      if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+      return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+    }
+
+    function showFile(file) {
+      if (!file) return;
+      selectedFile = file;
+      fileName.textContent = file.name;
+      fileSize.textContent = formatSize(file.size);
+      fileType.textContent = (file.name.split(".").pop() || "FILE").slice(0, 4).toUpperCase();
+      filePreview.classList.add("visible");
+      dropZone.classList.add("has-file");
+      document.getElementById("dropTitle").textContent = "Ready to share";
+      document.getElementById("dropCaption").textContent = "You can change the file before creating a link";
+      browseBtn.style.display = "none";
+      shareBtn.disabled = false;
+      result.classList.remove("visible");
+    }
+
+    browseBtn.addEventListener("click", () => fileInput.click());
+    fileInput.addEventListener("change", () => showFile(fileInput.files[0]));
+    ["dragenter", "dragover"].forEach(event => dropZone.addEventListener(event, e => {
+      e.preventDefault();
+      dropZone.classList.add("is-dragging");
+    }));
+    ["dragleave", "drop"].forEach(event => dropZone.addEventListener(event, e => {
+      e.preventDefault();
+      dropZone.classList.remove("is-dragging");
+    }));
+    dropZone.addEventListener("drop", e => showFile(e.dataTransfer.files[0]));
+    document.getElementById("removeFile").addEventListener("click", () => {
+      selectedFile = null;
+      fileInput.value = "";
+      filePreview.classList.remove("visible");
+      dropZone.classList.remove("has-file");
+      document.getElementById("dropTitle").textContent = "Drop your file here";
+      document.getElementById("dropCaption").textContent = "Any file type · Up to 2 GB";
+      browseBtn.style.display = "inline-block";
+      shareBtn.disabled = true;
+      result.classList.remove("visible");
+    });
+    shareBtn.addEventListener("click", async () => {
+      if (!selectedFile) return;
+      shareBtn.disabled = true;
+      shareBtn.classList.add("loading");
+      shareBtn.textContent = "Uploading...";
+      result.classList.remove("visible");
+      try {
+        const response = await fetch(`/api/upload?filename=${encodeURIComponent(selectedFile.name)}`, {
+          method: "POST",
+          headers: { "content-type": selectedFile.type || "application/octet-stream" },
+          body: selectedFile
+        });
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.error || "Upload failed");
+        resultLink.textContent = payload.url;
+        result.classList.add("visible");
+        shareBtn.textContent = "Link generated";
+      } catch (error) {
+        resultLink.textContent = error.message;
+        result.classList.add("visible");
+        shareBtn.textContent = "Try again";
+      } finally {
+        shareBtn.classList.remove("loading");
+        shareBtn.disabled = false;
+      }
+    });
+    document.getElementById("copyBtn").addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(`https://${resultLink.textContent}`);
+        document.getElementById("copyBtn").textContent = "Copied!";
+        setTimeout(() => document.getElementById("copyBtn").textContent = "Copy", 1600);
+      } catch {
+        document.getElementById("copyBtn").textContent = "Select link";
+      }
+    });
+  </script>
+</body>
+</html>

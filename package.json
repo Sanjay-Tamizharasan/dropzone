@@ -1,0 +1,13 @@
+{
+  "name": "dropzone-file-sharing",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Simple file sharing over the internet with Vercel Blob.",
+  "main": "api/upload.js",
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "@vercel/blob": "^1.1.1"
+  }
+}
