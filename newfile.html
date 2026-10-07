@@ -430,6 +430,10 @@
           headers: { "content-type": selectedFile.type || "application/octet-stream" },
           body: selectedFile
         });
+        const contentType = response.headers.get("content-type") || "";
+        if (!contentType.includes("application/json")) {
+          throw new Error("Uploads need a Vercel deployment with Blob storage. GitHub Pages can only host the interface.");
+        }
         const payload = await response.json();
         if (!response.ok) throw new Error(payload.error || "Upload failed");
         resultLink.textContent = payload.url;
